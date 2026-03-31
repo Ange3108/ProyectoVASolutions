@@ -1,7 +1,5 @@
 package com.vas.main;
 
-import com.mongodb.client.MongoDatabase;
-import com.vas.conexion.MongoConnection;
 
 
 public class Main {
@@ -10,8 +8,6 @@ public class Main {
 		
 		System.out.println("=== Sistema VAS - Demo NoSQL ===");
 
-		// Conexión a MongoDB
-        MongoDatabase db = MongoConnection.getDatabase();
 		
    
 
