@@ -25,6 +25,14 @@ public class clienteController {
     @Autowired
     private clienteService clienteService;
 
+    @GetMapping("/listado")
+    public String inicio(Model model) {
+        var clientes = clienteService.getAllClientes();
+        model.addAttribute("cliente", clientes);
+        model.addAttribute("totalClientes", clientes.size());
+        return "/clientes/listado";
+    }
+
     @PostMapping("/guardar")
     public String guardar(@Valid Cliente cliente, BindingResult bindingResult,
             RedirectAttributes redirectAttributes) {
@@ -36,7 +44,11 @@ public class clienteController {
                     .collect(Collectors.joining(" | "));
             redirectAttributes.addFlashAttribute("todoOK", "error");
             redirectAttributes.addFlashAttribute("message", errores);
-            return "redirect:/clientes";
+            if (cliente.getIdCliente() != null && !cliente.getIdCliente().isEmpty()) {
+                
+                return "/clientes/modificar" + cliente.getIdCliente();
+            }
+            return "redirect:/clientes/listado";
         }
 
         try {
@@ -48,7 +60,7 @@ public class clienteController {
             redirectAttributes.addFlashAttribute("message", "Error inesperado al guardar el cliente");
         }
 
-        return "redirect:/clientes";
+        return "redirect:/clientes/listado";
 
     }
     @PostMapping ("/eliminar")
@@ -69,8 +81,8 @@ public class clienteController {
         try {
             Optional<Cliente> cliente = clienteService.findByNombreEmpresa(nombreEmpresa);
             if(cliente.isPresent()){
-                model.addAttribute("cliente", cliente.get());
-                return "cliente/detalle";
+                model.addAttribute("clientes", cliente.get());
+                return "clientes/detalle";
             } else {
                 redirectAttributes.addFlashAttribute("todoOK", "error");
                 redirectAttributes.addFlashAttribute("message", "No se encontró cliente con ese nombre de empresa");
@@ -94,7 +106,7 @@ public class clienteController {
         }
         Cliente cliente = clienteOpt.get();
         model.addAttribute("cliente", cliente);
-        return "/cliente/modifica";
+        return "/clientes/modifica";
     }
 
 }

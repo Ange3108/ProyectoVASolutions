@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +25,14 @@ public class servicioController {
     @Autowired
     private servicioService servicioService;
 
+    @GetMapping("/listado")
+    public String inicio(Model model) {
+        var servicios = servicioService.getAllServicios();
+        model.addAttribute("servicio", servicios);
+        model.addAttribute("totalServicios", servicios.size());
+        return "/servicios/listado";
+    }
+
     @PostMapping("/guardar")
     public String guardar(@Valid Servicio servicio, BindingResult bindingResult,
             RedirectAttributes redirectAttributes) {
@@ -35,7 +44,12 @@ public class servicioController {
                     .collect(Collectors.joining(" | "));
             redirectAttributes.addFlashAttribute("todoOK", "error");
             redirectAttributes.addFlashAttribute("message", errores);
-            return "redirect:/servicios";
+
+            if (servicio.getIdServicio() != null && !servicio.getIdServicio().isEmpty()) {
+                
+                return "/servicios/modificar" + servicio.getIdServicio();
+            }
+            return "redirect:/servicios/listado";
         }
 
         try {
@@ -47,7 +61,7 @@ public class servicioController {
             redirectAttributes.addFlashAttribute("message", "Error inesperado al guardar el servicio");
         }
 
-        return "redirect:/servicios";   
+        return "redirect:/servicios/listado";   
     }
 
     @PostMapping("/eliminar")
@@ -73,31 +87,28 @@ public class servicioController {
             } else {
                 redirectAttributes.addFlashAttribute("todoOK", "error");
                 redirectAttributes.addFlashAttribute("message", "No se encontró un servicio con el nombre: " + nombreServicio);
-                return "redirect:/servicios";
+                return "redirect:/servicios/listado";
             }
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("todoOK", "error");
             redirectAttributes.addFlashAttribute("message", "Error inesperado al buscar el servicio");
-            return "redirect:/servicios";
+            return "redirect:/servicios/listado";
         }
     }
 
     @GetMapping("/modificar/{nombreServicio}")
-    public String modificar(@PathVariable ("nombreServicio") String nombreServicio, RedirectAttributes redirectAttributes) {
-        try {
-            Optional<Servicio> servicio = servicioService.findByNombreServicio(nombreServicio);
-            if (servicio.isPresent()) {
-                redirectAttributes.addFlashAttribute("servicio", servicio.get());
-                return "redirect:/servicios/detalle";
-            } else {
-                redirectAttributes.addFlashAttribute("todoOK", "error");
-                redirectAttributes.addFlashAttribute("message", "No se encontró un servicio con el nombre: " + nombreServicio);
-                return "redirect:/servicios";
-            }
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("todoOK", "error");
-            redirectAttributes.addFlashAttribute("message", "Error inesperado al modificar el servicio");
-            return "redirect:/servicios";
+    public String modificar(@PathVariable ("nombreServicio") String nombreServicio, 
+    RedirectAttributes redirectAttributes, Model model) {
+       
+     Optional<Servicio> servicioOpt = servicioService.findByNombreServicio(nombreServicio);
+            if(servicioOpt.isEmpty()){
+            redirectAttributes.addFlashAttribute("error", 
+            "No se encontró un servicio con el nombre: "+nombreServicio);
+            return "redirect:/servicios/listado";
         }
+        Servicio servicio = servicioOpt.get();
+        model.addAttribute("servicio", servicio);
+        return "/servicio/modifica";
+
     }
 }
