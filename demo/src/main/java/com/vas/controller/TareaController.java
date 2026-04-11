@@ -1,40 +1,31 @@
 package com.vas.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import java.util.*;
+import com.vas.model.Tarea;
+import com.vas.service.TareaService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/tareas")
 public class TareaController {
 
-    private List<Map<String, String>> tareas = new ArrayList<>();
+    @Autowired
+    private TareaService service;
 
     @GetMapping
-    public List<Map<String, String>> listar() {
-        return tareas;
+    public List<Tarea> listar() {
+        return service.listar();
     }
 
     @PostMapping
-    public Map<String, String> agregar(@RequestBody Map<String, String> tarea) {
-        tarea.put("id", UUID.randomUUID().toString());
-        tareas.add(tarea);
-        return tarea;
-    }
-
-    @PutMapping("/{id}")
-    public Map<String, String> actualizar(@PathVariable String id, @RequestBody Map<String, String> nuevo) {
-        for (Map<String, String> t : tareas) {
-            if (t.get("id").equals(id)) {
-                t.putAll(nuevo);
-                return t;
-            }
-        }
-        return null;
+    public Tarea guardar(@RequestBody Tarea t) {
+        return service.guardar(t);
     }
 
     @DeleteMapping("/{id}")
-    public String eliminar(@PathVariable String id) {
-        tareas.removeIf(t -> t.get("id").equals(id));
-        return "Tarea eliminada";
+    public void eliminar(@PathVariable String id) {
+        service.eliminar(id);
     }
 }
