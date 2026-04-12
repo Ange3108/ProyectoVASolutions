@@ -1,4 +1,20 @@
-import org.springframework.data.jpa.repository.JpaRepository;
+package com.vas.repository;
 
-public interface EmpleadoRepository extends JpaRepository<Empleado, Long> {
+import java.util.Optional;
+
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
+
+import com.vas.model.Empleado;
+
+@Repository
+public interface EmpleadoRepository extends MongoRepository<Empleado, String> {
+
+    Optional<Empleado> findByEmail(String email);
+
+    Optional<Empleado> findByNombre(String nombre);
+
+    void deleteByEmail(String email);
+
+    boolean existsByEmail(String email);
 }

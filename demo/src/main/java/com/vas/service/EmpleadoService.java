@@ -1,27 +1,71 @@
 package com.vas.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.vas.model.Empleado;
 import com.vas.repository.EmpleadoRepository;
-
-import java.util.List;
 
 @Service
 public class EmpleadoService {
 
-    @Autowired
-    private EmpleadoRepository repo;
+    private final EmpleadoRepository empleadoRepo;
 
-    public List<Empleado> listar() {
-        return repo.findAll();
+    public EmpleadoService(EmpleadoRepository empleadoRepo) {
+        this.empleadoRepo = empleadoRepo;
     }
 
-    public Empleado guardar(Empleado e) {
-        return repo.save(e);
+    @Transactional(readOnly = true)
+    public List<Empleado> getAllEmpleados() {
+        return empleadoRepo.findAll();
     }
 
-    public void eliminar(String id) {
-        repo.deleteById(id);
+    @Transactional(readOnly = true)
+    public Optional<Empleado> findById(String idEmpleado) {
+        return empleadoRepo.findById(idEmpleado);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Empleado> findByEmail(String email) {
+        return empleadoRepo.findByEmail(email);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Empleado> findByNombre(String nombre) {
+        return empleadoRepo.findByNombre(nombre);
+    }
+
+    @Transactional
+    public void save(Empleado empleado) {
+        if (empleado.getIdEmpleado() == null || empleado.getIdEmpleado().isEmpty()) {
+            if (empleadoRepo.existsByEmail(empleado.getEmail())) {
+                throw new IllegalArgumentException("Ya existe un empleado con ese email");
+            }
+        } else {
+            Optional<Empleado> existente = empleadoRepo.findById(empleado.getIdEmpleado());
+            if (existente.isEmpty()) {
+                throw new IllegalArgumentException("Empleado no encontrado");
+            }
+
+            Empleado empleadoDB = existente.get();
+            if (!empleadoDB.getEmail().equalsIgnoreCase(empleado.getEmail())
+                    && empleadoRepo.existsByEmail(empleado.getEmail())) {
+                throw new IllegalArgumentException("Ya existe otro empleado con ese email");
+            }
+        }
+
+        empleadoRepo.save(empleado);
+    }
+
+    @Transactional
+    public void deleteByEmail(String email) {
+        Optional<Empleado> empleado = empleadoRepo.findByEmail(email);
+        if (empleado.isEmpty()) {
+            throw new IllegalArgumentException("No existe un empleado con ese email");
+        }
+        empleadoRepo.deleteByEmail(email);
     }
 }

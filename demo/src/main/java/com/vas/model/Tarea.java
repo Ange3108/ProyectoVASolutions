@@ -2,38 +2,72 @@ package com.vas.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Document(collection = "tareas")
 public class Tarea {
 
     @Id
-    private String id;
+    private String idTarea;
 
-    @NotBlank(message = "Proyecto obligatorio")
+    @NotBlank(message = "El proyecto es obligatorio")
+    @Size(min = 3, max = 80, message = "El proyecto debe tener entre 3 y 80 caracteres")
     private String proyecto;
 
-    @NotBlank(message = "Título obligatorio")
+    @NotBlank(message = "El título es obligatorio")
+    @Size(min = 3, max = 80, message = "El título debe tener entre 3 y 80 caracteres")
     private String titulo;
 
-    @NotBlank(message = "Empleado obligatorio")
+    @NotBlank(message = "El empleado es obligatorio")
+    @Size(min = 3, max = 60, message = "El empleado debe tener entre 3 y 60 caracteres")
     private String empleado;
 
-    @NotBlank(message = "Estado obligatorio")
+    @NotBlank(message = "El estado es obligatorio")
+    @Size(min = 3, max = 30, message = "El estado debe tener entre 3 y 30 caracteres")
     private String estado;
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public Tarea() {
+    }
 
-    public String getProyecto() { return proyecto; }
-    public void setProyecto(String proyecto) { this.proyecto = proyecto; }
+    public String getIdTarea() {
+        return idTarea;
+    }
 
-    public String getTitulo() { return titulo; }
-    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public void setIdTarea(String idTarea) {
+        this.idTarea = idTarea;
+    }
 
-    public String getEmpleado() { return empleado; }
-    public void setEmpleado(String empleado) { this.empleado = empleado; }
+    public String getProyecto() {
+        return proyecto;
+    }
 
-    public String getEstado() { return estado; }
-    public void setEstado(String estado) { this.estado = estado; }
+    public void setProyecto(String proyecto) {
+        this.proyecto = proyecto;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public String getEmpleado() {
+        return empleado;
+    }
+
+    public void setEmpleado(String empleado) {
+        this.empleado = empleado;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
 }
