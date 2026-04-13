@@ -81,6 +81,19 @@ function flashMsg(elId, tipo, texto) {
 
 let _proyectosCache = [];
 
+const idFieldByPage = {
+  clientes: "idCliente",
+  servicios: "idServicio",
+  empleados: "idEmpleado",
+  proyectos: "idProyecto",
+  campanas: "idCampana",
+  tareas: "idTarea",
+};
+
+function encodePayload(obj) {
+  return encodeURIComponent(JSON.stringify(obj || {}));
+}
+
 async function renderDashboard() {
   try {
     const [clientes, proyectos, empleados, campanas] = await Promise.all([
@@ -132,7 +145,7 @@ async function renderClientes() {
         <td>${c.direccion || ""}</td>
         <td>${estadoBadge(c.estado)}</td>
         <td><div class="row-actions">
-          <a href="${withBackend(`/clientes/modificar/${id}`)}" class="row-btn">Editar</a>
+          <button class="row-btn" onclick="openEditModal('clientes', '${encodePayload(c)}')">Editar</button>
           <button class="row-btn danger" onclick="eliminarCliente('${nombre.replace(/'/g, "\\'")}')">Eliminar</button>
         </div></td>
       </tr>`;
@@ -147,7 +160,7 @@ async function renderClientes() {
 async function eliminarCliente(nombreEmpresa) {
   if (!confirm(`¿Eliminar el cliente "${nombreEmpresa}"?`)) return;
   try {
-    await postForm("/clientes/eliminar", { nombreEmpresa });
+    await postForm("/api/clientes/eliminar", { nombreEmpresa });
     flashMsg("msg-clientes", "ok", "Cliente eliminado exitosamente");
     renderClientes();
   } catch (e) {
@@ -169,7 +182,7 @@ async function renderServicios() {
         <td style="color:#555">${s.descripcion || ""}</td>
         <td>$${precio}</td>
         <td><div class="row-actions">
-          <a href="${withBackend(`/servicios/modificar/${encodeURIComponent(nombre)}`)}" class="row-btn">Editar</a>
+          <button class="row-btn" onclick="openEditModal('servicios', '${encodePayload(s)}')">Editar</button>
           <button class="row-btn danger" onclick="eliminarServicio('${nombre.replace(/'/g, "\\'")}')">Eliminar</button>
         </div></td>
       </tr>`;
@@ -184,7 +197,7 @@ async function renderServicios() {
 async function eliminarServicio(nombreServicio) {
   if (!confirm(`¿Eliminar el servicio "${nombreServicio}"?`)) return;
   try {
-    await postForm("/servicios/eliminar", { nombreServicio });
+    await postForm("/api/servicios/eliminar", { nombreServicio });
     flashMsg("msg-servicios", "ok", "Servicio eliminado exitosamente");
     renderServicios();
   } catch (e) {
@@ -206,7 +219,7 @@ async function renderEmpleados() {
         <td>${e.especialidad || ""}</td>
         <td style="color:#2563a8">${e.email || ""}</td>
         <td><div class="row-actions">
-          <a href="${withBackend(`/empleados/modificar/${id}`)}" class="row-btn">Editar</a>
+          <button class="row-btn" onclick="openEditModal('empleados', '${encodePayload(e)}')">Editar</button>
           <button class="row-btn danger" onclick="eliminarEmpleado('${(e.email || "").replace(/'/g, "\\'")}')">Eliminar</button>
         </div></td>
       </tr>`;
@@ -221,7 +234,7 @@ async function renderEmpleados() {
 async function eliminarEmpleado(email) {
   if (!confirm(`¿Eliminar el empleado con email "${email}"?`)) return;
   try {
-    await postForm("/empleados/eliminar", { email });
+    await postForm("/api/empleados/eliminar", { email });
     renderEmpleados();
   } catch (e) {
     alert("No se pudo eliminar: " + e.message);
@@ -251,6 +264,7 @@ function pintarProyectos(datos) {
       <td>${estadoBadge(p.estado)}</td>
       <td>$${p.precio || 0}</td>
       <td><div class="row-actions">
+        <button class="row-btn" onclick="openEditModal('proyectos', '${encodePayload(p)}')">Editar</button>
         <button class="row-btn danger" onclick="eliminarProyecto('${nombre.replace(/'/g, "\\'")}')">Eliminar</button>
       </div></td>
     </tr>`;
@@ -276,7 +290,7 @@ function filtrarProyectos() {
 async function eliminarProyecto(nombreProyecto) {
   if (!confirm(`¿Eliminar el proyecto "${nombreProyecto}"?`)) return;
   try {
-    await postForm("/proyectos/eliminar", { nombreProyecto });
+    await postForm("/api/proyectos/eliminar", { nombreProyecto });
     renderProyectos();
   } catch (e) {
     alert("No se pudo eliminar: " + e.message);
@@ -297,6 +311,7 @@ async function renderCampanas() {
         <td>${tipo}</td>
         <td>$${c.presupuesto || 0}</td>
         <td><div class="row-actions">
+          <button class="row-btn" onclick="openEditModal('campanas', '${encodePayload(c)}')">Editar</button>
           <button class="row-btn danger" onclick="eliminarCampana('${tipo.replace(/'/g, "\\'")}')">Eliminar</button>
         </div></td>
       </tr>`;
@@ -311,7 +326,7 @@ async function renderCampanas() {
 async function eliminarCampana(tipoCampana) {
   if (!confirm(`¿Eliminar la campaña "${tipoCampana}"?`)) return;
   try {
-    await postForm("/campanas/eliminar", { tipoCampana });
+    await postForm("/api/campanas/eliminar", { tipoCampana });
     renderCampanas();
   } catch (e) {
     alert("No se pudo eliminar: " + e.message);
@@ -332,7 +347,7 @@ async function renderTareas() {
         <td>${t.empleado || ""}</td>
         <td>${estadoBadge(t.estado)}</td>
         <td><div class="row-actions">
-          <a href="${withBackend(`/tareas/modificar/${id}`)}" class="row-btn">Editar</a>
+          <button class="row-btn" onclick="openEditModal('tareas', '${encodePayload(t)}')">Editar</button>
           <button class="row-btn danger" onclick="eliminarTarea('${(t.titulo || "").replace(/'/g, "\\'")}')">Eliminar</button>
         </div></td>
       </tr>`;
@@ -347,7 +362,7 @@ async function renderTareas() {
 async function eliminarTarea(titulo) {
   if (!confirm(`¿Eliminar la tarea "${titulo}"?`)) return;
   try {
-    await postForm("/tareas/eliminar", { titulo });
+    await postForm("/api/tareas/eliminar", { titulo });
     renderTareas();
   } catch (e) {
     alert("No se pudo eliminar: " + e.message);
@@ -367,7 +382,7 @@ const renders = {
 const modalConfig = {
   clientes: {
     titulo: "Agregar cliente",
-    action: "/clientes/guardar",
+    action: "/api/clientes/guardar",
     campos: `
       <div class="form-grid">
         <div class="form-group full">
@@ -401,7 +416,7 @@ const modalConfig = {
   },
   servicios: {
     titulo: "Agregar servicio",
-    action: "/servicios/guardar",
+    action: "/api/servicios/guardar",
     campos: `
       <div class="form-grid">
         <div class="form-group full">
@@ -420,7 +435,7 @@ const modalConfig = {
   },
   empleados: {
     titulo: "Agregar empleado",
-    action: "/empleados/guardar",
+    action: "/api/empleados/guardar",
     campos: `
       <div class="form-grid">
         <div class="form-group">
@@ -443,7 +458,7 @@ const modalConfig = {
   },
   proyectos: {
     titulo: "Agregar proyecto",
-    action: "/proyectos/guardar",
+    action: "/api/proyectos/guardar",
     campos: `
       <div class="form-grid">
         <div class="form-group full">
@@ -475,7 +490,7 @@ const modalConfig = {
   },
   campanas: {
     titulo: "Agregar campaña",
-    action: "/campanas/guardar",
+    action: "/api/campanas/guardar",
     campos: `
       <div class="form-grid">
         <div class="form-group">
@@ -501,7 +516,7 @@ const modalConfig = {
   },
   tareas: {
     titulo: "Agregar tarea",
-    action: "/tareas/guardar",
+    action: "/api/tareas/guardar",
     campos: `
       <div class="form-grid">
         <div class="form-group full">
@@ -538,6 +553,38 @@ function openModal() {
   document.getElementById("modal").classList.add("open");
 }
 
+function openEditModal(page, payload) {
+  const cfg = modalConfig[page];
+  if (!cfg) return;
+
+  const data = JSON.parse(decodeURIComponent(payload || "%7B%7D"));
+  currentPage = page;
+
+  const form = document.getElementById("modal-form");
+  document.getElementById("modal-title").textContent = cfg.titulo.replace("Agregar", "Editar");
+  document.getElementById("modal-body").innerHTML = cfg.campos;
+  form.action = cfg.action;
+
+  const idField = idFieldByPage[page];
+  if (idField && data[idField]) {
+    let hidden = form.querySelector(`input[name="${idField}"]`);
+    if (!hidden) {
+      hidden = document.createElement("input");
+      hidden.type = "hidden";
+      hidden.name = idField;
+      form.appendChild(hidden);
+    }
+    hidden.value = data[idField];
+  }
+
+  Object.entries(data).forEach(([key, value]) => {
+    const input = form.querySelector(`[name="${key}"]`);
+    if (input) input.value = value ?? "";
+  });
+
+  document.getElementById("modal").classList.add("open");
+}
+
 function closeModal() {
   document.getElementById("modal").classList.remove("open");
 }
@@ -564,7 +611,10 @@ document
         },
         body: datos.toString(),
       });
-      if (!res.ok) throw new Error("Error " + res.status);
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(body.error || "Error " + res.status);
+      }
       closeModal();
       renders[currentPage]();
     } catch (e) {
