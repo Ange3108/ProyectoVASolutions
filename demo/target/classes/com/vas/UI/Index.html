@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VA Solutions</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app">
+
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-title">VA Solutions</div>
+      <div class="logo-sub">Panel de gestión</div>
+    </div>
+
+    <div class="nav-section-label">Principal</div>
+    <div class="nav-item active" onclick="showPage('dashboard', this)">
+      <span class="nav-icon">◻</span> Dashboard
+    </div>
+
+    <div class="nav-section-label">Gestión</div>
+    <div class="nav-item" onclick="showPage('clientes', this)">
+      <span class="nav-icon">◉</span> Clientes
+    </div>
+    <div class="nav-item" onclick="showPage('servicios', this)">
+      <span class="nav-icon">◈</span> Servicios
+    </div>
+    <div class="nav-item" onclick="showPage('empleados', this)">
+      <span class="nav-icon">◎</span> Empleados
+    </div>
+    <div class="nav-item" onclick="showPage('proyectos', this)">
+      <span class="nav-icon">◧</span> Proyectos
+    </div>
+    <div class="nav-item" onclick="showPage('campanas', this)">
+      <span class="nav-icon">◐</span> Campañas
+    </div>
+    <div class="nav-item" onclick="showPage('tareas', this)">
+      <span class="nav-icon">◑</span> Tareas
+    </div>
+  </div>
+
+  <div class="main">
+
+    <div class="topbar">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary" id="add-btn" onclick="openModal()" style="display:none">+ Agregar</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Clientes</div>
+            <div class="metric-value" id="m-clientes">—</div>
+            <div class="metric-sub">registrados</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Proyectos</div>
+            <div class="metric-value" id="m-proyectos">—</div>
+            <div class="metric-sub">en total</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Empleados</div>
+            <div class="metric-value" id="m-empleados">—</div>
+            <div class="metric-sub">activos</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Campañas</div>
+            <div class="metric-value" id="m-campanas">—</div>
+            <div class="metric-sub">activas</div>
+          </div>
+        </div>
+        <div class="section-header">
+          <div class="section-title">Proyectos recientes</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Proyecto</th><th>Cliente</th><th>Servicio</th><th>Estado</th><th>Precio</th></tr>
+            </thead>
+            <tbody id="dash-tbody">
+              <tr><td colspan="5" style="text-align:center;color:#888;padding:1.5rem">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CLIENTES-->
+      <div class="page" id="page-clientes">
+        <form action="/clientes/buscar" method="post" class="search-bar">
+          <span class="search-icon">⊘</span>
+          <input name="nombreEmpresa" placeholder="Buscar por nombre de empresa...">
+          <button type="submit" class="btn" style="padding:4px 10px;font-size:12px">Buscar</button>
+        </form>
+        <div id="msg-clientes" class="flash-msg" style="display:none"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Empresa</th><th>Contacto</th><th>Teléfono</th><th>Email</th><th>Dirección</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody id="tbody-clientes">
+              <tr><td colspan="7" style="text-align:center;color:#888;padding:1.5rem">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SERVICIOS-->
+      <div class="page" id="page-servicios">
+        <form action="/servicios/buscar" method="post" class="search-bar">
+          <span class="search-icon">⊘</span>
+          <input name="nombreServicio" placeholder="Buscar por nombre del servicio...">
+          <button type="submit" class="btn" style="padding:4px 10px;font-size:12px">Buscar</button>
+        </form>
+        <div id="msg-servicios" class="flash-msg" style="display:none"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Servicio</th><th>Descripción</th><th>Precio base</th><th></th></tr>
+            </thead>
+            <tbody id="tbody-servicios">
+              <tr><td colspan="4" style="text-align:center;color:#888;padding:1.5rem">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EMPLEADOS -->
+      <div class="page" id="page-empleados">
+        <form action="/empleados/buscar" method="post" class="search-bar">
+          <span class="search-icon">⊘</span>
+          <input name="email" placeholder="Buscar por email...">
+          <button type="submit" class="btn" style="padding:4px 10px;font-size:12px">Buscar</button>
+        </form>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Nombre</th><th>Puesto</th><th>Especialidad</th><th>Email</th><th></th></tr>
+            </thead>
+            <tbody id="tbody-empleados">
+              <tr><td colspan="5" style="text-align:center;color:#888;padding:1.5rem">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PROYECTOS-->
+      <div class="page" id="page-proyectos">
+        <div class="search-bar">
+          <span class="search-icon">⊘</span>
+          <input id="search-proyectos" placeholder="Filtrar proyectos..." oninput="filtrarProyectos()">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Nombre</th><th>Cliente</th><th>Servicio</th><th>Estado</th><th>Precio</th><th></th></tr>
+            </thead>
+            <tbody id="tbody-proyectos">
+              <tr><td colspan="6" style="text-align:center;color:#888;padding:1.5rem">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CAMPAÑAS-->
+      <div class="page" id="page-campanas">
+        <form action="/campanas/buscar" method="post" class="search-bar">
+          <span class="search-icon">⊘</span>
+          <input name="tipoCampana" placeholder="Buscar por tipo de campaña...">
+          <button type="submit" class="btn" style="padding:4px 10px;font-size:12px">Buscar</button>
+        </form>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Cliente</th><th>Plataforma</th><th>Tipo de campaña</th><th>Presupuesto</th><th></th></tr>
+            </thead>
+            <tbody id="tbody-campanas">
+              <tr><td colspan="5" style="text-align:center;color:#888;padding:1.5rem">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAREAS-->
+      <div class="page" id="page-tareas">
+        <form action="/tareas/buscar" method="post" class="search-bar">
+          <span class="search-icon">⊘</span>
+          <input name="titulo" placeholder="Buscar por título de tarea...">
+          <button type="submit" class="btn" style="padding:4px 10px;font-size:12px">Buscar</button>
+        </form>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Título</th><th>Proyecto</th><th>Empleado</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody id="tbody-tareas">
+              <tr><td colspan="5" style="text-align:center;color:#888;padding:1.5rem">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Agregar registro</div>
+      <button type="button" class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <form id="modal-form" method="post">
+      <div id="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
