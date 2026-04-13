@@ -1,6 +1,7 @@
 package com.vas.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -52,7 +53,9 @@ public class servicioService {
             }
         } else {
             //es una actualizacion
-            Optional<Servicio> servicioOpt = servicioRepo.findById(servicio.getIdServicio());
+            Optional<Servicio> servicioOpt = servicioRepo.findById(
+                Objects.requireNonNull(servicio.getIdServicio(), "idServicio no puede ser null")
+            );
             if(servicioOpt.isEmpty()){
                 throw new IllegalArgumentException("No existe un servicio con el id: " + servicio.getIdServicio());
             }

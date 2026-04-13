@@ -1,12 +1,27 @@
+const BACKEND_ORIGIN =
+  window.location.origin === "http://localhost:8080" ||
+  window.location.origin === "http://127.0.0.1:8080"
+    ? ""
+    : "http://localhost:8080";
+
+function withBackend(path) {
+  if (!path || path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+  return `${BACKEND_ORIGIN}${path}`;
+}
+
 async function fetchListado(path) {
-  const res = await fetch(path, { headers: { Accept: "application/json" } });
+  const res = await fetch(withBackend(path), {
+    headers: { Accept: "application/json" },
+  });
   if (!res.ok) throw new Error(`Error ${res.status} en ${path}`);
   return res.json();
 }
 
 async function postForm(action, campos) {
   const body = new URLSearchParams(campos);
-  const res = await fetch(action, {
+  const res = await fetch(withBackend(action), {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -69,10 +84,10 @@ let _proyectosCache = [];
 async function renderDashboard() {
   try {
     const [clientes, proyectos, empleados, campanas] = await Promise.all([
-      fetchListado("/clientes/listado"),
-      fetchListado("/proyectos/listado"),
-      fetchListado("/empleados/listado"),
-      fetchListado("/campanas/listado"),
+      fetchListado("/api/clientes/listado"),
+      fetchListado("/api/proyectos/listado"),
+      fetchListado("/api/empleados/listado"),
+      fetchListado("/api/campanas/listado"),
     ]);
     document.getElementById("m-clientes").textContent = clientes.length;
     document.getElementById("m-proyectos").textContent = proyectos.length;
@@ -94,7 +109,8 @@ async function renderDashboard() {
     errorFila(
       "dash-tbody",
       5,
-      "No se pudo conectar con el servidor. " + e.message,
+      "No se pudo conectar con el servidor. Verifica que Spring Boot este corriendo en http://localhost:8080. " +
+        e.message,
     );
   }
 }
@@ -102,7 +118,7 @@ async function renderDashboard() {
 async function renderClientes() {
   cargando("tbody-clientes", 7);
   try {
-    const datos = await fetchListado("/clientes/listado");
+    const datos = await fetchListado("/api/clientes/listado");
     document.getElementById("tbody-clientes").innerHTML =
       datos
         .map((c) => {
@@ -116,7 +132,7 @@ async function renderClientes() {
         <td>${c.direccion || ""}</td>
         <td>${estadoBadge(c.estado)}</td>
         <td><div class="row-actions">
-          <a href="/clientes/modificar/${id}" class="row-btn">Editar</a>
+          <a href="${withBackend(`/clientes/modificar/${id}`)}" class="row-btn">Editar</a>
           <button class="row-btn danger" onclick="eliminarCliente('${nombre.replace(/'/g, "\\'")}')">Eliminar</button>
         </div></td>
       </tr>`;
@@ -142,7 +158,7 @@ async function eliminarCliente(nombreEmpresa) {
 async function renderServicios() {
   cargando("tbody-servicios", 4);
   try {
-    const datos = await fetchListado("/servicios/listado");
+    const datos = await fetchListado("/api/servicios/listado");
     document.getElementById("tbody-servicios").innerHTML =
       datos
         .map((s) => {
@@ -153,7 +169,7 @@ async function renderServicios() {
         <td style="color:#555">${s.descripcion || ""}</td>
         <td>$${precio}</td>
         <td><div class="row-actions">
-          <a href="/servicios/modificar/${encodeURIComponent(nombre)}" class="row-btn">Editar</a>
+          <a href="${withBackend(`/servicios/modificar/${encodeURIComponent(nombre)}`)}" class="row-btn">Editar</a>
           <button class="row-btn danger" onclick="eliminarServicio('${nombre.replace(/'/g, "\\'")}')">Eliminar</button>
         </div></td>
       </tr>`;
@@ -179,7 +195,7 @@ async function eliminarServicio(nombreServicio) {
 async function renderEmpleados() {
   cargando("tbody-empleados", 5);
   try {
-    const datos = await fetchListado("/empleados/listado");
+    const datos = await fetchListado("/api/empleados/listado");
     document.getElementById("tbody-empleados").innerHTML =
       datos
         .map((e) => {
@@ -190,7 +206,7 @@ async function renderEmpleados() {
         <td>${e.especialidad || ""}</td>
         <td style="color:#2563a8">${e.email || ""}</td>
         <td><div class="row-actions">
-          <a href="/empleados/modificar/${id}" class="row-btn">Editar</a>
+          <a href="${withBackend(`/empleados/modificar/${id}`)}" class="row-btn">Editar</a>
           <button class="row-btn danger" onclick="eliminarEmpleado('${(e.email || "").replace(/'/g, "\\'")}')">Eliminar</button>
         </div></td>
       </tr>`;
@@ -215,7 +231,7 @@ async function eliminarEmpleado(email) {
 async function renderProyectos() {
   cargando("tbody-proyectos", 6);
   try {
-    const datos = await fetchListado("/proyectos/listado");
+    const datos = await fetchListado("/api/proyectos/listado");
     _proyectosCache = datos;
     pintarProyectos(datos);
   } catch (e) {
@@ -270,7 +286,7 @@ async function eliminarProyecto(nombreProyecto) {
 async function renderCampanas() {
   cargando("tbody-campanas", 5);
   try {
-    const datos = await fetchListado("/campanas/listado");
+    const datos = await fetchListado("/api/campanas/listado");
     document.getElementById("tbody-campanas").innerHTML =
       datos
         .map((c) => {
@@ -305,7 +321,7 @@ async function eliminarCampana(tipoCampana) {
 async function renderTareas() {
   cargando("tbody-tareas", 5);
   try {
-    const datos = await fetchListado("/tareas/listado");
+    const datos = await fetchListado("/api/tareas/listado");
     document.getElementById("tbody-tareas").innerHTML =
       datos
         .map((t) => {
@@ -316,7 +332,7 @@ async function renderTareas() {
         <td>${t.empleado || ""}</td>
         <td>${estadoBadge(t.estado)}</td>
         <td><div class="row-actions">
-          <a href="/tareas/modificar/${id}" class="row-btn">Editar</a>
+          <a href="${withBackend(`/tareas/modificar/${id}`)}" class="row-btn">Editar</a>
           <button class="row-btn danger" onclick="eliminarTarea('${(t.titulo || "").replace(/'/g, "\\'")}')">Eliminar</button>
         </div></td>
       </tr>`;
@@ -540,7 +556,7 @@ document
     btn.textContent = "Guardando...";
     btn.disabled = true;
     try {
-      const res = await fetch(form.action, {
+      const res = await fetch(withBackend(form.action), {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -558,6 +574,15 @@ document
       btn.disabled = false;
     }
   });
+
+function normalizarAccionesForm() {
+  document.querySelectorAll('form[action^="/"]').forEach((form) => {
+    const action = form.getAttribute("action");
+    form.setAttribute("action", withBackend(action));
+  });
+}
+
+normalizarAccionesForm();
 
 let currentPage = "dashboard";
 

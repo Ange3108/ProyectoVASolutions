@@ -1,6 +1,7 @@
 package com.vas.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -31,7 +32,7 @@ public class proyectoService {
 
     @Transactional(readOnly = true)
     public Optional<Proyecto> findById(String idProyecto) {
-        return proyectoRepo.findById(idProyecto);
+        return proyectoRepo.findById(Objects.requireNonNull(idProyecto, "idProyecto no puede ser null"));
     }
 
     @Transactional

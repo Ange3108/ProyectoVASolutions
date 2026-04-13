@@ -1,6 +1,7 @@
 package com.vas.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class campanaService {
 
     @Transactional
     public void save(CampanaRedes campana) {
-        campanaRepo.save(campana);
+        campanaRepo.save(Objects.requireNonNull(campana, "campana no puede ser null"));
     }
 
     @Transactional

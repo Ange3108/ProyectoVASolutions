@@ -1,6 +1,7 @@
 package com.vas.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class TareaService {
 
     @Transactional(readOnly = true)
     public Optional<Tarea> findById(String idTarea) {
-        return tareaRepo.findById(idTarea);
+        return tareaRepo.findById(Objects.requireNonNull(idTarea, "idTarea no puede ser null"));
     }
 
     @Transactional(readOnly = true)
@@ -45,7 +46,8 @@ public class TareaService {
                 throw new IllegalArgumentException("Ya existe una tarea con ese título");
             }
         } else {
-            Optional<Tarea> existente = tareaRepo.findById(tarea.getIdTarea());
+                Optional<Tarea> existente = tareaRepo.findById(
+                    Objects.requireNonNull(tarea.getIdTarea(), "idTarea no puede ser null"));
             if (existente.isEmpty()) {
                 throw new IllegalArgumentException("Tarea no encontrada");
             }

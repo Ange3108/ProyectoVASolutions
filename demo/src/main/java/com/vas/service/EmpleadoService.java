@@ -1,6 +1,7 @@
 package com.vas.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class EmpleadoService {
 
     @Transactional(readOnly = true)
     public Optional<Empleado> findById(String idEmpleado) {
-        return empleadoRepo.findById(idEmpleado);
+        return empleadoRepo.findById(Objects.requireNonNull(idEmpleado, "idEmpleado no puede ser null"));
     }
 
     @Transactional(readOnly = true)
@@ -45,7 +46,8 @@ public class EmpleadoService {
                 throw new IllegalArgumentException("Ya existe un empleado con ese email");
             }
         } else {
-            Optional<Empleado> existente = empleadoRepo.findById(empleado.getIdEmpleado());
+                Optional<Empleado> existente = empleadoRepo.findById(
+                    Objects.requireNonNull(empleado.getIdEmpleado(), "idEmpleado no puede ser null"));
             if (existente.isEmpty()) {
                 throw new IllegalArgumentException("Empleado no encontrado");
             }

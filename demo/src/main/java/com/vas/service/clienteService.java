@@ -1,6 +1,7 @@
 package com.vas.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,7 +30,7 @@ public class clienteService {
 
     @Transactional(readOnly = true)
     public Optional<Cliente> findById(String idCliente) {
-        return clienteRepo.findById(idCliente);
+        return clienteRepo.findById(Objects.requireNonNull(idCliente, "idCliente no puede ser null"));
     }
 
     //Este metodo elimina fidicamente un registro de la tabla cliente
@@ -57,6 +58,7 @@ public class clienteService {
     //si el idproducto tiene un valor se hace un update, si viene vacio un insert
     @Transactional 
     public void save(Cliente cliente){
+        Objects.requireNonNull(cliente, "cliente no puede ser null");
        
         // Validar que no exista otro cliente con el mismo nombreEmpresa
         Optional<Cliente> existente = clienteRepo.findByNombreEmpresa(cliente.getNombreEmpresa());
